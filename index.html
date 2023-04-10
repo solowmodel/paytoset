@@ -7,13 +7,13 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
 </head>
 <body>
-    <h1>Highest Payer Message</h1>
+    <h1>Set The Message</h1>
     <div id="message">Loading message...</div>
     <form id="setMessageForm">
         <label for="newMessage">New Message:</label>
         <input type="text" id="newMessage" name="newMessage">
         <label for="amount">Amount (in Ether):</label>
-        <input type="number" id="amount" name="amount" step="0.01">
+        <input type="number" id="amount" name="amount" step="0.0001">
         <button type="submit">Pay and Set Message</button>
     </form>
     <script>
