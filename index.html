@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highest Payer Message</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.4.6.min.js"></script>
+</head>
+<body>
+    <h1>Highest Payer Message</h1>
+    <div id="message">Loading message...</div>
+    <form id="setMessageForm">
+        <label for="newMessage">New Message:</label>
+        <input type="text" id="newMessage" name="newMessage">
+        <label for="amount">Amount (in Ether):</label>
+        <input type="number" id="amount" name="amount" step="0.01">
+        <button type="submit">Pay and Set Message</button>
+    </form>
+    <script>
+        // Replace with your contract's address and ABI
+        const contractAddress = '0xd78fD35b073Ae7e6505C969a69B1a19B287F65a3';
+        const contractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_message",
+				"type": "string"
+			}
+		],
+		"name": "payAndSetMessage",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address payable",
+				"name": "_designatedWallet",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "designatedWallet",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "highestPayer",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "highestPayment",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "message",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        const messageElement = document.getElementById('message');
+        const setMessageForm = document.getElementById('setMessageForm');
+
+        async function updateMessage() {
+            const message = await contract.methods.message().call();
+            messageElement.textContent = message;
+        }
+
+        setMessageForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const newMessage = document.getElementById('newMessage').value;
+            const amount = web3.utils.toWei(document.getElementById('amount').value, 'ether');
+
+            const accounts = await web3.eth.getAccounts();
+            const account = accounts[0];
+
+            await contract.methods.payAndSetMessage(newMessage)
+                .send({ from: account, value: amount });
+
+            await updateMessage();
+        });
+
+        updateMessage();
+    </script>
+</body>
+</html>
+
