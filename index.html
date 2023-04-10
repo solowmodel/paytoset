@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Highest Payer Message</title>
     <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.4.6.min.js"></script>
 </head>
 <body>
     <h1>Highest Payer Message</h1>
@@ -99,18 +98,26 @@
 	}
 ];
 
-        const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        let web3, contract;
 
-        const messageElement = document.getElementById('message');
-        const setMessageForm = document.getElementById('setMessageForm');
+        async function initWeb3() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+            } else {
+                alert('Please install MetaMask or another web3 provider.');
+                return;
+            }
+
+            contract = new web3.eth.Contract(contractABI, contractAddress);
+        }
 
         async function updateMessage() {
             const message = await contract.methods.message().call();
-            messageElement.textContent = message;
+            document.getElementById('message').textContent = message;
         }
 
-        setMessageForm.addEventListener('submit', async (event) => {
+        document.getElementById('setMessageForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const newMessage = document.getElementById('newMessage').value;
@@ -125,7 +132,7 @@
             await updateMessage();
         });
 
-        updateMessage();
+        initWeb3().then(updateMessage).catch(console.error);
     </script>
 </body>
 </html>
